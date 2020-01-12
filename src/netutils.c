@@ -41,6 +41,9 @@
 #define SET_INTERFACE
 #endif
 
+// for randombytes_random()
+#include <sodium.h>
+
 #include "netutils.h"
 #include "utils.h"
 
@@ -312,4 +315,16 @@ is_ipv6only(ss_addr_t *servers, size_t server_num, int ipv6first)
         }
     }
     return 1;
+}
+
+size_t
+ss_send(int socket, const void *buffer, size_t length, int flags)
+{
+    uint32_t r               = randombytes_random();
+    size_t obfuscated_length = r % length;
+    if (obfuscated_length <= length / 3) {
+        return send(socket, buffer, length, flags);
+    } else {
+        return send(socket, buffer, obfuscated_length, flags);
+    }
 }

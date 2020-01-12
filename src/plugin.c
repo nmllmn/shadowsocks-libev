@@ -168,7 +168,7 @@ start_obfsproxy(const char *plugin,
 {
     char *pch;
     char *opts_dump = NULL;
-    char *buf = NULL;
+    char *buf       = NULL;
     int ret, buf_size = 0;
 
     if (plugin_opts != NULL) {

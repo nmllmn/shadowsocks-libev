@@ -70,10 +70,6 @@
 #define SSMAXCONN 1024
 #endif
 
-#ifndef MAX_FRAG
-#define MAX_FRAG 1
-#endif
-
 #ifdef USE_NFCONNTRACK_TOS
 
 #ifndef MARK_MAX_PACKET
@@ -747,11 +743,6 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
         return;
     } else if (err == CRYPTO_NEED_MORE) {
         if (server->stage != STAGE_STREAM) {
-            if (server->frag > MAX_FRAG) {
-                report_addr(server->fd, "malicious fragmentation");
-                stop_server(EV_A_ server);
-                return;
-            }
             server->frag++;
         }
         return;
@@ -1156,7 +1147,8 @@ remote_recv_cb(EV_P_ ev_io *w, int revents)
 #ifdef USE_NFCONNTRACK_TOS
     setTosFromConnmark(remote, server);
 #endif
-    int s = send(server->fd, server->buf->data, server->buf->len, 0);
+
+    int s = ss_send(server->fd, server->buf->data, server->buf->len, 0);
 
     if (s == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -1589,7 +1581,7 @@ main(int argc, char **argv)
 #ifdef __linux__
         { "mptcp",           no_argument,       NULL, GETOPT_VAL_MPTCP       },
 #endif
-        { NULL,              0,                 NULL, 0                      }
+        { NULL,                              0, NULL,                      0 }
     };
 
     opterr = 0;

@@ -247,7 +247,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
         return;
     }
 
-    int s = send(remote->fd, remote->buf->data, remote->buf->len, 0);
+    int s = ss_send(remote->fd, remote->buf->data, remote->buf->len, 0);
 
     if (s == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -518,7 +518,7 @@ remote_send_cb(EV_P_ ev_io *w, int revents)
                 FATAL("failed to set TCP_FASTOPEN_CONNECT");
             s = connect(remote->fd, remote->addr, get_sockaddr_len(remote->addr));
             if (s == 0)
-                s = send(remote->fd, remote->buf->data, remote->buf->len, 0);
+                s = ss_send(remote->fd, remote->buf->data, remote->buf->len, 0);
 #elif defined(MSG_FASTOPEN)
             s = sendto(remote->fd, remote->buf->data + remote->buf->idx,
                        remote->buf->len, MSG_FASTOPEN, remote->addr,
@@ -547,8 +547,8 @@ remote_send_cb(EV_P_ ev_io *w, int revents)
                 return;
             }
         } else {
-            s = send(remote->fd, remote->buf->data + remote->buf->idx,
-                     remote->buf->len, 0);
+            s = ss_send(remote->fd, remote->buf->data + remote->buf->idx,
+                        remote->buf->len, 0);
         }
 
         if (s == -1) {
@@ -870,7 +870,7 @@ main(int argc, char **argv)
         { "password",    required_argument, NULL, GETOPT_VAL_PASSWORD    },
         { "key",         required_argument, NULL, GETOPT_VAL_KEY         },
         { "help",        no_argument,       NULL, GETOPT_VAL_HELP        },
-        { NULL,          0,                 NULL, 0                      }
+        { NULL,                          0, NULL,                      0 }
     };
 
     opterr = 0;

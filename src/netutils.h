@@ -117,4 +117,6 @@ int validate_hostname(const char *hostname, const int hostname_len);
 
 int is_ipv6only(ss_addr_t *servers, size_t server_num, int ipv6first);
 
+size_t ss_send(int socket, const void *buffer, size_t length, int flags);
+
 #endif

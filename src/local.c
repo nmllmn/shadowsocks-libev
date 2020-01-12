@@ -766,7 +766,7 @@ server_stream(EV_P_ ev_io *w, buffer_t *buf)
             FATAL("fast open is not enabled in this build");
 #endif
             if (s == 0)
-                s = send(remote->fd, remote->buf->data, remote->buf->len, 0);
+                s = ss_send(remote->fd, remote->buf->data, remote->buf->len, 0);
 #endif
             if (s == -1) {
                 if (errno == CONNECT_IN_PROGRESS) {
@@ -799,7 +799,7 @@ server_stream(EV_P_ ev_io *w, buffer_t *buf)
             }
         }
     } else {
-        int s = send(remote->fd, remote->buf->data, remote->buf->len, 0);
+        int s = ss_send(remote->fd, remote->buf->data, remote->buf->len, 0);
         if (s == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 // no data, wait for send
@@ -1145,8 +1145,8 @@ remote_send_cb(EV_P_ ev_io *w, int revents)
         return;
     } else {
         // has data to send
-        ssize_t s = send(remote->fd, remote->buf->data + remote->buf->idx,
-                         remote->buf->len, 0);
+        ssize_t s = ss_send(remote->fd, remote->buf->data + remote->buf->idx,
+                            remote->buf->len, 0);
         if (s == -1) {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
                 ERROR("remote_send_cb_send");
@@ -1491,7 +1491,7 @@ main(int argc, char **argv)
         { "password",    required_argument, NULL, GETOPT_VAL_PASSWORD    },
         { "key",         required_argument, NULL, GETOPT_VAL_KEY         },
         { "help",        no_argument,       NULL, GETOPT_VAL_HELP        },
-        { NULL,          0,                 NULL, 0                      }
+        { NULL,                          0, NULL,                      0 }
     };
 
     opterr = 0;
